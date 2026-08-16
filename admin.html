@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Vendedor — Comissões</title>
+    <style>
+        *{margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif;}
+        :root {--rosa:#ff5e8c; --roxo:#9d65c9; --escuro:#2b2b2b; --bg:#f8f5f8;}
+        body{background:var(--bg); min-height:100vh;}
+        
+        header{background:linear-gradient(90deg, var(--rosa), var(--roxo)); color:white; padding:30px; text-align:center;}
+        header h1{font-size:1.8rem;}
+        .voltar{color:white; text-decoration:none; display:inline-block; margin-top:10px; opacity:.9;}
+        
+        .container{max-width:900px; margin:0 auto; padding:30px 20px;}
+        .painel-info{display:flex; gap:20px; flex-wrap:wrap; margin-bottom:30px;}
+        .card-info{background:white; padding:20px; border-radius:15px; flex:1; min-width:180px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,.06);}
+        .card-info .numero{font-size:2rem; font-weight:800; color:var(--roxo);}
+        .card-info label{color:#777; font-size:.9rem;}
+        
+        .pedido{background:white; border-radius:18px; padding:25px; margin-bottom:20px; box-shadow:0 4px 15px rgba(0,0,0,.05); border-left:5px solid var(--rosa);}
+        .pedido.pago{border-left-color:#28c76f;}
+        .pedido.concluido{border-left-color:#6c63ff; opacity:.9;}
+        
+        .cabecalho{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;}
+        .id{font-size:.85rem; color:#999; font-family:monospace;}
+        .status-pendente{background:#fff3cd; color:#926c00; padding:5px 12px; border-radius:20px; font-size:.85rem; font-weight:600;}
+        .status-pago{background:#d1fae5; color:#065f46; padding:5px 12px; border-radius:20px; font-size:.85rem; font-weight:600;}
+        .status-concluido{background:#e0e7ff; color:#3730a3; padding:5px 12px; border-radius:20px; font-size:.85rem; font-weight:600;}
+        
+        .detalhes p{margin:8px 0; line-height:1.6;}
+        .detalhes strong{color:var(--roxo);}
+        .obs{background:#fdf4ff; padding:15px; border-radius:12px; margin:12px 0; border-left:3px solid var(--rosa);}
+        
+        .acoes{margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;}
+        button{padding:10px 16px; border:none; border-radius:10px; font-weight:600; cursor:pointer; transition:.2s; font-size:.9rem;}
+        .btn-pago{background:#d1fae5; color:#065f46;}
+        .btn-pago:hover{background:#a7f3d0;}
+        .btn-concluido{background:#e0e7ff; color:#3730a3;}
+        .btn-concluido:hover{background:#c7d2fe;}
+        .btn-excluir{background:#fee2e2; color:#991b1b;}
+        .btn-excluir:hover{background:#fecaca;}
+        
+        .vazio{text-align:center; padding:60px 20px; color:#888; font-size:1.1rem;}
+        .atualizar{background:var(--roxo); color:white; margin-bottom:20px;}
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🔐 Painel de Comissões — Meus Pedidos</h1>
+    <p>Gerencie todos os pedidos recebidos</p>
+    <a href="index.html" class="voltar">← Ver loja do cliente</a>
+</header>
+
+<div class="container">
+    <button class="atualizar" onclick="location.reload()">🔄 Atualizar Pedidos</button>
+    
+    <div class="painel-info">
+        <div class="card-info">
+            <div class="numero" id="total">0</div>
+            <label>Total Pedidos</label>
+        </div>
+        <div class="card-info">
+            <div class="numero" id="pendentes">0</div>
+            <label>Pendentes</label>
+        </div>
+        <div class="card-info">
+            <div class="numero" id="pagos">0</div>
+            <label>Pagos</label>
+        </div>
+        <div class="card-info">
+            <div class="numero" id="concluidos">0</div>
+            <label>Concluídos</label>
+        </div>
+    </div>
+
+    <div id="listaPedidos"></div>
+</div>
+
+<script>
+    function carregarPedidos(){
+        const pedidos = JSON.parse(localStorage.getItem('pedidos') || '[]');
+        const lista = document.getElementById('listaPedidos');
+        lista.innerHTML = '';
+        
+        if(pedidos.length === 0){
+            lista.innerHTML = '<div class="vazio">📭 Nenhum pedido recebido ainda. Quando o cliente enviar, aparece aqui automaticamente!</div>';
+            document.getElementById('total').textContent = '0';
+            document.getElementById('pendentes').textContent = '0';
+            document.getElementById('pagos').textContent = '0';
+            document.getElementById('concluidos').textContent = '0';
+            return;
+        }
+        
+        let pend=0, pago=0, conc=0;
+        
+        pedidos.forEach((pedido, index) => {
+            if(pedido.status === 'Pendente') pend++;
+            if(pedido.status === 'Pago') pago++;
+            if(pedido.status === 'Concluído') conc++;
+            
+            let classeStatus = 'status-pendente';
+            let classePedido = '';
+            if(pedido.status === 'Pago') { classeStatus = 'status-pago'; classePedido = 'pago'; }
+            if(pedido.status === 'Concluído') { classeStatus = 'status-concluido'; classePedido = 'concluido'; }
+            
+            lista.innerHTML += `
+                <div class="pedido ${classePedido}">
+                    <div class="cabecalho">
+                        <div>
+                            <strong>${pedido.nome}</strong>
+                            <span class="id">#${pedido.id}</span>
+                        </div>
+                        <span class="${classeStatus}">${pedido.status}</span>
+                    </div>
+                    
+                    <div class="detalhes">
+                        <p><strong>Contato:</strong> ${pedido.contato}</p>
+                        <p><strong>Tipo:</strong> ${pedido.tipo} | <strong>Valor:</strong> ${pedido.valor}</p>
+                        <p><strong>Data:</strong> ${pedido.data}</p>
+                        <p><strong>Referência:</strong> ${pedido.referencia}</p>
+                        
+                        <div class="obs">
+                            <strong>📝 Observações do cliente:</strong><br>
+                            ${pedido.observacoes}
+                        </div>
+                    </div>
+                    
+                    <div class="acoes">
+                        <button class="btn-pago" onclick="mudarStatus(${index}, 'Pago')">✅ Marcar como Pago</button>
+                        <button class="btn-concluido" onclick="mudarStatus(${index}, 'Concluído')">🎨 Marcar Concluído</button>
+                        <button class="btn-excluir" onclick="excluirPedido(${index})">🗑️ Excluir</button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        document.getElementById('total').textContent = pedidos.length;
+        document.getElementById('pendentes').textContent = pend;
+        document.getElementById('pagos').textContent = pago;
+        document.getElementById('concluidos').textContent = conc;
+    }
+    
+    function mudarStatus(index, novoStatus){
+        const pedidos = JSON.parse(localStorage.getItem('pedidos') || '[]');
+        pedidos[index].status = novoStatus;
+        localStorage.setItem('pedidos', JSON.stringify(pedidos));
+        carregarPedidos();
+    }
+    
+    function excluirPedido(index){
+        if(confirm('Tem certeza que deseja excluir esse pedido?')){
+            const pedidos = JSON.parse(localStorage.getItem('pedidos') || '[]');
+            pedidos.splice(index, 1);
+            localStorage.setItem('pedidos', JSON.stringify(pedidos));
+            carregarPedidos();
+        }
+    }
+    
+    carregarPedidos();
+</script>
+
+</body>
+</html>
