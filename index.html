@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comissões de Desenhos ✨</title>
+    <style>
+        *{margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif;}
+        :root {--rosa:#ff5e8c; --roxo:#9d65c9; --escuro:#2b2b2b; --claro:#fef7fa;}
+        body{background:linear-gradient(135deg, #fff5f8, #f3e5ff); min-height:100vh; color:var(--escuro);}
+        
+        /* BANNER PRINCIPAL */
+        .banner{background:linear-gradient(90deg, var(--rosa), var(--roxo)); color:white; text-align:center; padding:60px 20px; border-radius:0 0 30px 30px; box-shadow:0 8px 25px rgba(157,101,201,.25);}
+        .banner h1{font-size:2.5rem; margin-bottom:10px;}
+        .banner p{font-size:1.2rem; opacity:.95;}
+        
+        .container{max-width:700px; margin:0 auto; padding:30px 20px;}
+        .card{background:white; border-radius:20px; padding:30px; margin-bottom:25px; box-shadow:0 5px 20px rgba(0,0,0,.08);}
+        .card h2{color:var(--roxo); margin-bottom:20px; font-size:1.4rem;}
+        
+        label{display:block; margin:15px 0 8px; font-weight:600; color:#444;}
+        input, select, textarea{width:100%; padding:14px; border:2px solid #f0e5f0; border-radius:12px; font-size:1rem; transition:.3s;}
+        input:focus, select:focus, textarea:focus{outline:none; border-color:var(--rosa); box-shadow:0 0 0 4px rgba(255,94,140,.15);}
+        textarea{min-height:130px; resize:vertical;}
+        
+        .preco-box{background:linear-gradient(90deg, #fff0f5, #f6e9ff); padding:20px; border-radius:15px; text-align:center; margin:25px 0;}
+        .preco{font-size:2.2rem; font-weight:800; color:var(--rosa);}
+        .preco span{font-size:1rem; color:#777;}
+        
+        button{width:100%; background:linear-gradient(90deg, var(--rosa), var(--roxo)); color:white; border:none; padding:18px; border-radius:15px; font-size:1.2rem; font-weight:700; cursor:pointer; transition:.3s; box-shadow:0 4px 15px rgba(157,101,201,.35);}
+        button:hover{transform:translateY(-2px); box-shadow:0 6px 20px rgba(157,101,201,.4);}
+        
+        .info{text-align:center; margin-top:20px; font-size:.95rem; color:#666;}
+        .sucesso{display:none; background:#e6ffef; color:#007a3d; padding:25px; border-radius:15px; text-align:center; margin-top:20px;}
+    </style>
+</head>
+<body>
+
+<!-- BANNER TELA INICIAL -->
+<div class="banner">
+    <h1>🎨 Comissões de Desenhos</h1>
+    <p>Seu desenho personalizado, feito com muito carinho ✨</p>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>🛒 Personalize seu pedido</h2>
+        <p style="color:#666; margin-bottom:15px;">Me conta tudo que você quiser — quanto mais detalhes, melhor! 💖</p>
+        
+        <form id="formPedido">
+            <label>Seu nome *</label>
+            <input type="text" id="nome" required placeholder="Digite seu nome">
+            
+            <label>Seu e-mail / WhatsApp *</label>
+            <input type="text" id="contato" required placeholder="Para eu te entregar o resultado">
+            
+            <label>Tipo de desenho</label>
+            <select id="tipo">
+                <option value="Retrato">Retrato</option>
+                <option value="Personagem">Personagem</option>
+                <option value="Casal">Casal</option>
+                <option value="Animais/Pets">Animais / Pets</option>
+                <option value="Outro">Outro estilo</option>
+            </select>
+            
+            <label>📝 Instruções e detalhes PERSONALIZADOS *</label>
+            <textarea id="observacoes" required placeholder="Ex: Estilo anime, fundo branco, sem sombra... &#10;&#10;Kkk exemplo: quero tudo igual, só tirar o dedo mindinho kkkk"></textarea>
+            
+            <label>Link de referência (se tiver)</label>
+            <input type="url" id="referencia" placeholder="Cole o link da foto/referência aqui">
+            
+            <div class="preco-box">
+                <p>Valor fixo por desenho</p>
+                <div class="preco">R$ 60,00 <span>à vista</span></div>
+            </div>
+            
+            <button type="submit">✅ Enviar Pedido</button>
+            <p class="info">Ao enviar, você receberá os dados para pagamento 💳</p>
+            
+            <div class="sucesso" id="mensagemSucesso">
+                <h3>🎉 Pedido enviado com sucesso!</h3>
+                <p>Já recebi tudo! Em breve entro em contato com os dados de pagamento e prazo de entrega 💖</p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const pedidos = JSON.parse(localStorage.getItem('pedidos') || '[]');
+    
+    document.getElementById('formPedido').addEventListener('submit', function(e){
+        e.preventDefault();
+        
+        const novoPedido = {
+            id: Date.now(),
+            nome: document.getElementById('nome').value,
+            contato: document.getElementById('contato').value,
+            tipo: document.getElementById('tipo').value,
+            observacoes: document.getElementById('observacoes').value,
+            referencia: document.getElementById('referencia').value || 'Sem referência',
+            data: new Date().toLocaleString('pt-BR'),
+            status: 'Pendente',
+            valor: 'R$ 60,00'
+        };
+        
+        pedidos.push(novoPedido);
+        localStorage.setItem('pedidos', JSON.stringify(pedidos));
+        
+        document.getElementById('mensagemSucesso').style.display = 'block';
+        this.reset();
+        
+        window.scrollTo(0, document.body.scrollHeight);
+    });
+</script>
+
+</body>
+</html>
